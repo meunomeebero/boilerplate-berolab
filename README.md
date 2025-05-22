@@ -33,10 +33,10 @@ A **production-ready** full-stack boilerplate built on top of Next.js 14 App Rou
 
 ```bash
 # SSH
-$ git clone git@github.com:your-org/your-repo.git my-app
+$ git clone git@github.com:meunomeebero/boilerplate-berolab.git my-app
 # — or —
 # HTTPS
-$ git clone https://github.com/your-org/your-repo.git my-app
+$ git clone https://github.com/meunomeebero/boilerplate-berolab.git my-app
 
 $ cd my-app
 $ npm install   # or pnpm install / yarn install / bun install
