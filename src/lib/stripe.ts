@@ -7,7 +7,7 @@ let stripeInstance: Stripe | undefined;
 export const getStripe = async () => {
   if (!stripeInstance && process.env.STRIPE_SECRET_KEY) {
     stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: "2025-03-31.basil",
+      apiVersion: "2025-04-30.basil",
       typescript: true,
     });
   }
@@ -59,9 +59,3 @@ export async function getStripeCustomerSubscription(subscriptionId: string) {
   return await stripe.subscriptions.retrieve(subscriptionId);
 }
 
-export async function cancelStripeSubscription(subscriptionId: string) {
-  const stripe = await getStripe();
-  if (!stripe) throw new Error("Stripe not initialized");
-  
-  return await stripe.subscriptions.cancel(subscriptionId);
-} 
