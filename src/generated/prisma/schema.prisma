@@ -1,0 +1,153 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id               String    @id @default(cuid())
+  name             String?
+  email            String?   @unique
+  emailVerified    DateTime?
+  image            String?
+  stripeCustomerId String?
+  accounts         Account[]
+  sessions         Session[]
+
+  customer Customer?
+}
+
+// New Models for Stripe Abstraction Layer
+
+model Customer {
+  id               String @id @default(cuid())
+  userId           String @unique
+  user             User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeCustomerId String @unique
+
+  subscriptions      Subscription[]
+  payments           StripePayment[]
+  creditTransactions CreditTransaction[]
+  appUsages          AppUsage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Subscription {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  stripeSubscriptionId String    @unique
+  stripePriceId        String
+  productId            String?
+  status               String
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  cancelAtPeriodEnd    Boolean   @default(false)
+  canceledAt           DateTime?
+  endedAt              DateTime?
+  trialStart           DateTime?
+  trialEnd             DateTime?
+  metadata             Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model StripePayment {
+  id         String    @id @default(cuid())
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  stripePaymentIntentId   String?
+  stripeChargeId          String?
+  stripeCheckoutSessionId String?
+  stripeInvoiceId         String?
+
+  amount            Int
+  currency          String
+  status            String
+  paymentMethodType String?
+  receiptUrl        String?
+  failureReason     String?
+  metadata          Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  creditTransaction CreditTransaction?
+}
+
+model CreditTransaction {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  stripePaymentId String?        @unique
+  payment         StripePayment? @relation(fields: [stripePaymentId], references: [id], onDelete: SetNull)
+
+  type         String
+  amount       Int
+  balanceAfter Int
+  description  String?
+  metadata     Json?
+
+  appUsageId String?   @unique
+  appUsage   AppUsage? @relation(fields: [appUsageId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+}
+
+model AppUsage {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  feature     String
+  creditsUsed Int
+  description String?
+  metadata    Json?
+
+  creditTransaction CreditTransaction?
+
+  createdAt DateTime @default(now())
+}
