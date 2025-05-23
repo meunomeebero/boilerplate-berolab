@@ -47,7 +47,7 @@ $ npm install   # or pnpm install / yarn install / bun install
 Copy the example file and fill in your own values:
 
 ```bash
-$ cp env.example .env
+$ cp .env.example .env
 ```
 
 ```env
