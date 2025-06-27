@@ -81,7 +81,7 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"      # used by the client (tRPC link
 ### 3. Generate the database & Prisma Client
 
 ```bash
-$ npx prisma migrate dev --name init
+ $ npx prisma db push
 ```
 
 ### 4. Run the development server
