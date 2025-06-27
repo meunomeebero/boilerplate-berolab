@@ -1,0 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Don't run npm run dev
+Don't delete code without ask me first
+Don't do push to database without ask me first
